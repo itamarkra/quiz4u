@@ -19,4 +19,37 @@ const questions = [
     options: ["מה אני צריך להספיק?", "רוצה להישאר במיטה", "למי לכתוב קודם", "נזכר בחלום"]
   },
   {
-    question: "איך אתה מ
+    question: "איך אתה מתמודד עם כישלון?",
+    options: ["מאשים את עצמי", "מחפש לשפר", "מתעודד מאחרים", "מתעלם"]
+  }
+];
+
+const form = document.getElementById("quiz-form");
+
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.innerHTML = `<p>${q.question}</p>` +
+    q.options.map((opt, idx) =>
+      `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label><br>`
+    ).join("");
+  form.appendChild(div);
+});
+
+document.getElementById("submit-btn").addEventListener("click", async () => {
+  const answers = questions.map((q, i) => {
+    const selected = document.querySelector(`input[name=q${i}]:checked`);
+    return selected ? parseInt(selected.value) : null;
+  });
+
+  const quizData = questions.map((q, i) => ({
+    question: q.question,
+    options: q.options,
+    correctAnswer: answers[i]
+  }));
+
+  const docRef = await addDoc(collection(db, "quizzes"), { questions: quizData });
+  const link = `quiz.html?id=${docRef.id}`;
+  const a = document.getElementById("quiz-link");
+  a.textContent = link;
+  a.href = link;
+});
